@@ -79,6 +79,7 @@ namespace nezhaV2 {
     let motorLeftGlobal = 0
     let motorRightGlobal = 0
     let degreeToDistance = 0
+    let wheelBaseDistance = 0
 
     export function delayMs(ms: number): void {
         let time = input.runningTime() + ms
@@ -350,6 +351,18 @@ namespace nezhaV2 {
     }
 
     //% group="Application functions"
+    //% weight=401
+    //% block="Set wheelbase (distance between wheels) to %value %unit"
+    export function setWheelBase(value: number, unit: Uint): void {
+        if (value < 0) value = 0
+        if (unit == Uint.inch) {
+            wheelBaseDistance = value * 2.54
+        } else {
+            wheelBaseDistance = value
+        }
+    }
+
+    //% group="Application functions"
     //% weight=403
     //%block="Combination Motor Move at %speed to %direction %value %uint "
     //% speed.min=0  speed.max=100
@@ -389,6 +402,47 @@ namespace nezhaV2 {
         }
         motorDelay(value, mode);
     }
+
+    //% group="Application functions"
+    //% weight=400
+    //% block="rotate robot by %angle degrees at %speed\\%"
+    export function comboRotate(angle: number, speed: number): void {
+        if (speed <= 0 || angle == 0) return
+        if (wheelBaseDistance == 0 || degreeToDistance == 0) return
+    
+        // Define direção da rotação
+        let direction: MovementDirection =
+            angle > 0 ? MovementDirection.CW : MovementDirection.CCW
+    
+        // magnitude
+        angle = Math.abs(angle)
+    
+        // Distância percorrida por cada roda:
+        // arco = (ângulo_em_radianos) * (distância entre rodas / 2)
+        let radians = angle * Math.PI / 180
+        let arcDistance = radians * (wheelBaseDistance / 2)
+    
+        // Converter distância → graus do motor
+        // degreeToDistance = perímetro da roda
+        // 360 graus correspondem ao perímetro
+        let motorDegrees = (arcDistance * 360) / degreeToDistance
+    
+        // Ajustar velocidade
+        setServoSpeed(speed)
+    
+        // Se girando CW (sentido horário), a roda esquerda avança e a direita recua
+        if (direction == MovementDirection.CW) {
+            __move(motorLeftGlobal, MovementDirection.CCW, motorDegrees, SportsMode.Degree)
+            __move(motorRightGlobal, MovementDirection.CW, motorDegrees, SportsMode.Degree)
+        } else {
+            // CCW → roda esquerda recua, direita avança
+            __move(motorLeftGlobal, MovementDirection.CW, motorDegrees, SportsMode.Degree)
+            __move(motorRightGlobal, MovementDirection.CCW, motorDegrees, SportsMode.Degree)
+        }
+    
+        motorDelay(motorDegrees, SportsMode.Degree)
+    }
+
 
     //% group="Application functions"
     //% weight=402
