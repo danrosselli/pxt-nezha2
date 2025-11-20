@@ -410,38 +410,32 @@ namespace nezhaV2 {
         if (speed <= 0 || angle == 0) return
         if (wheelBaseDistance == 0 || degreeToDistance == 0) return
     
-        // Define direção da rotação
         let direction: MovementDirection =
             angle > 0 ? MovementDirection.CW : MovementDirection.CCW
     
-        // magnitude
         angle = Math.abs(angle)
     
-        // Distância percorrida por cada roda:
-        // arco = (ângulo_em_radianos) * (distância entre rodas / 2)
         let radians = angle * Math.PI / 180
         let arcDistance = radians * (wheelBaseDistance / 2)
     
-        // Converter distância → graus do motor
-        // degreeToDistance = perímetro da roda
-        // 360 graus correspondem ao perímetro
         let motorDegrees = (arcDistance * 360) / degreeToDistance
     
-        // Ajustar velocidade
         setServoSpeed(speed)
     
-        // Se girando CW (sentido horário), a roda esquerda avança e a direita recua
+        // Direções compatíveis com o padrão da Nezha
         if (direction == MovementDirection.CW) {
+            // esquerda pra frente, direita pra trás
             __move(motorLeftGlobal, MovementDirection.CCW, motorDegrees, SportsMode.Degree)
-            __move(motorRightGlobal, MovementDirection.CW, motorDegrees, SportsMode.Degree)
-        } else {
-            // CCW → roda esquerda recua, direita avança
-            __move(motorLeftGlobal, MovementDirection.CW, motorDegrees, SportsMode.Degree)
             __move(motorRightGlobal, MovementDirection.CCW, motorDegrees, SportsMode.Degree)
+        } else {
+            // esquerda pra trás, direita pra frente
+            __move(motorLeftGlobal, MovementDirection.CW, motorDegrees, SportsMode.Degree)
+            __move(motorRightGlobal, MovementDirection.CW, motorDegrees, SportsMode.Degree)
         }
     
         motorDelay(motorDegrees, SportsMode.Degree)
     }
+
 
 
     //% group="Application functions"
