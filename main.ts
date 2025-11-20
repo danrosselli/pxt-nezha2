@@ -224,7 +224,7 @@ namespace nezhaV2 {
 
     //% group="Basic functions"
     //% weight=402
-    //%block="%motor absolute angular value"
+    //% block="%motor absolute angular value"
     export function readAbsAngle(motor: MotorPostion): number {
         let position = readAngle(motor)
         while (position < 0) {
@@ -235,14 +235,14 @@ namespace nezhaV2 {
 
     //% group="Basic functions"
     //% weight=402
-    //%block="%motor relative angular value"
+    //% block="%motor relative angular value"
     export function readRelAngle(motor: MotorPostion): number {
         return (readAngle(motor) - relativeAngularArr[motor - 1]) * 0.1;
     }
 
     //% group="Basic functions"
     //% weight=400
-    //%block="%motor speed (laps/sec)"
+    //% block="%motor speed (laps/sec)"
     export function readSpeed(motor: MotorPostion): number {
         delayMs(4)
         let buf = pins.createBuffer(8)
@@ -263,7 +263,7 @@ namespace nezhaV2 {
 
     //% group="Basic functions"
     //% weight=399
-    //%block="set servo %motor to zero"
+    //% block="set servo %motor to zero"
     export function reset(motor: MotorPostion): void {
         let buf = pins.createBuffer(8)
         buf[0] = 0xFF;
@@ -281,7 +281,7 @@ namespace nezhaV2 {
 
     //% group="Basic functions"
     //% weight=399
-    //%block="set servo %motor relative angular to zero"
+    //% block="set servo %motor relative angular to zero"
     export function resetRelAngleValue(motor: MotorPostion) {
         relativeAngularArr[motor - 1] = readAngle(motor);
     }
@@ -339,7 +339,7 @@ namespace nezhaV2 {
     */
     //% group="Application functions"
     //% weight=404
-    //%block="Set the wheel circumference to %value %unit"
+    //% block="set the wheel circumference to %value %unit"
     export function setWheelPerimeter(value: number, unit: Uint): void {
         if(value < 0){
             value = 0;
@@ -353,7 +353,7 @@ namespace nezhaV2 {
 
     //% group="Application functions"
     //% weight=401
-    //% block="Set wheelbase (distance between wheels) to %value %unit"
+    //% block="set wheelbase (distance between wheels) to %value %unit"
     export function setWheelBase(value: number, unit: Uint): void {
         if (value < 0) value = 0
         if (unit == Uint.inch) {
@@ -365,7 +365,7 @@ namespace nezhaV2 {
 
     //% group="Application functions"
     //% weight=398
-    //% block="Set combo rotate calibration factor to %factor"
+    //% block="set combo rotate calibration factor to %factor"
     //% factor.min=0.5 factor.max=1.5 factor.defl=1.0
     export function setComboRotateCalibration(factor: number): void {
         if (factor <= 0) factor = 1.0
@@ -374,8 +374,8 @@ namespace nezhaV2 {
 
     //% group="Application functions"
     //% weight=403
-    //%block="Combination Motor Move at %speed to %direction %value %uint "
-    //% speed.min=0  speed.max=100
+    //% block="combination Motor Move at %speed to %direction %value %uint "
+    //% speed.min=0 speed.max=100
     //% inlineInputMode=inline
     export function comboMove(speed: number, direction: VerticallDirection, value: number, uint: DistanceAndAngleUnit): void {
         if(speed <= 0){
@@ -415,7 +415,9 @@ namespace nezhaV2 {
 
     //% group="Application functions"
     //% weight=400
-    //% block="Rotate robot by %angle degrees at %speed\\%"
+    //% block="combination Motor rotate by %angle degrees at %speed\\%"
+    //% angle.min=-720 angle.max=720
+    //% speed.min=0 speed.max=100
     export function comboRotate(angle: number, speed: number): void {
         if (speed <= 0 || angle == 0) return
         if (wheelBaseDistance == 0 || degreeToDistance == 0) return
@@ -428,7 +430,7 @@ namespace nezhaV2 {
         let radians = angle * Math.PI / 180
         let arcDistance = radians * (wheelBaseDistance / 2)
     
-        // APLICAR FATOR DE CALIBRAÇÃO
+        // apply calibration factor
         let motorDegrees = (arcDistance * 360 * comboRotateCalibrationFactor) / degreeToDistance
     
         setServoSpeed(speed)
