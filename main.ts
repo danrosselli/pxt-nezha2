@@ -80,6 +80,7 @@ namespace nezhaV2 {
     let motorRightGlobal = 0
     let degreeToDistance = 0
     let wheelBaseDistance = 0
+    let comboRotateCalibrationFactor = 1.0
 
     export function delayMs(ms: number): void {
         let time = input.runningTime() + ms
@@ -363,6 +364,15 @@ namespace nezhaV2 {
     }
 
     //% group="Application functions"
+    //% weight=398
+    //% block="Set combo rotate calibration factor to %factor"
+    //% factor.min=0.5 factor.max=1.5 factor.defl=1.0
+    export function setComboRotateCalibration(factor: number): void {
+        if (factor <= 0) factor = 1.0
+        comboRotateCalibrationFactor = factor
+    }
+
+    //% group="Application functions"
     //% weight=403
     //%block="Combination Motor Move at %speed to %direction %value %uint "
     //% speed.min=0  speed.max=100
@@ -405,7 +415,7 @@ namespace nezhaV2 {
 
     //% group="Application functions"
     //% weight=400
-    //% block="rotate robot by %angle degrees at %speed\\%"
+    //% block="Rotate robot by %angle degrees at %speed\\%"
     export function comboRotate(angle: number, speed: number): void {
         if (speed <= 0 || angle == 0) return
         if (wheelBaseDistance == 0 || degreeToDistance == 0) return
@@ -418,25 +428,21 @@ namespace nezhaV2 {
         let radians = angle * Math.PI / 180
         let arcDistance = radians * (wheelBaseDistance / 2)
     
-        let motorDegrees = (arcDistance * 360) / degreeToDistance
+        // APLICAR FATOR DE CALIBRAÇÃO
+        let motorDegrees = (arcDistance * 360 * comboRotateCalibrationFactor) / degreeToDistance
     
         setServoSpeed(speed)
     
-        // Direções compatíveis com o padrão da Nezha
         if (direction == MovementDirection.CW) {
-            // esquerda pra frente, direita pra trás
             __move(motorLeftGlobal, MovementDirection.CCW, motorDegrees, SportsMode.Degree)
             __move(motorRightGlobal, MovementDirection.CCW, motorDegrees, SportsMode.Degree)
         } else {
-            // esquerda pra trás, direita pra frente
             __move(motorLeftGlobal, MovementDirection.CW, motorDegrees, SportsMode.Degree)
             __move(motorRightGlobal, MovementDirection.CW, motorDegrees, SportsMode.Degree)
         }
     
         motorDelay(motorDegrees, SportsMode.Degree)
     }
-
-
 
     //% group="Application functions"
     //% weight=402
